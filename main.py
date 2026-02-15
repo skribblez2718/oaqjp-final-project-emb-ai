@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname
 
 
 def main():
-    result = emotion_detector("I am so happy I am doing this.")
+    result = emotion_detector("I love this new technology.")
     print(result)
 
 

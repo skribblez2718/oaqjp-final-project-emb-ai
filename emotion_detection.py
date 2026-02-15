@@ -1,3 +1,4 @@
+import json
 import logging
 
 import requests
@@ -23,4 +24,23 @@ def emotion_detector(text_to_analyse):
     except requests.Timeout:
         logger.error("Request timed out after %ds", REQUEST_TIMEOUT)
         raise
-    return response.text
+
+    response_dict = json.loads(response.text)
+    emotions = response_dict["emotionPredictions"][0]["emotion"]
+
+    anger = emotions["anger"]
+    disgust = emotions["disgust"]
+    fear = emotions["fear"]
+    joy = emotions["joy"]
+    sadness = emotions["sadness"]
+
+    dominant_emotion = max(emotions, key=emotions.get)
+
+    return {
+        "anger": anger,
+        "disgust": disgust,
+        "fear": fear,
+        "joy": joy,
+        "sadness": sadness,
+        "dominant_emotion": dominant_emotion,
+    }
