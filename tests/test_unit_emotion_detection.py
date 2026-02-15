@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 import requests
 
-from emotion_detection import emotion_detector, WATSON_URL, WATSON_HEADERS, REQUEST_TIMEOUT
+from EmotionDetection.emotion_detection import emotion_detector, WATSON_URL, WATSON_HEADERS, REQUEST_TIMEOUT
 
 SAMPLE_API_RESPONSE = {
     "emotionPredictions": [{
@@ -36,7 +36,7 @@ def _mock_response(body: dict) -> MagicMock:
 class TestEmotionDetectorRequest:
     """Tests verifying the outgoing HTTP request is constructed correctly."""
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_calls_correct_url(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
         emotion_detector("test text")
@@ -44,7 +44,7 @@ class TestEmotionDetectorRequest:
         call_args = mock_post.call_args
         assert call_args[0][0] == WATSON_URL
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_sends_correct_headers(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
         emotion_detector("test text")
@@ -52,7 +52,7 @@ class TestEmotionDetectorRequest:
         call_args = mock_post.call_args
         assert call_args[1]["headers"] == WATSON_HEADERS
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_sends_correct_json_payload(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
         emotion_detector("I love this product")
@@ -60,7 +60,7 @@ class TestEmotionDetectorRequest:
         call_args = mock_post.call_args
         assert call_args[1]["json"] == {"raw_document": {"text": "I love this product"}}
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_sends_timeout(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
         emotion_detector("test text")
@@ -68,7 +68,7 @@ class TestEmotionDetectorRequest:
         call_args = mock_post.call_args
         assert call_args[1]["timeout"] == REQUEST_TIMEOUT
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_passes_text_argument_in_payload(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
         emotion_detector("different text here")
@@ -80,7 +80,7 @@ class TestEmotionDetectorRequest:
 class TestEmotionDetectorReturnFormat:
     """Tests verifying the returned dict has the correct shape and content."""
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_returns_dict(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
 
@@ -88,7 +88,7 @@ class TestEmotionDetectorReturnFormat:
 
         assert isinstance(result, dict)
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_contains_all_expected_keys(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
 
@@ -96,7 +96,7 @@ class TestEmotionDetectorReturnFormat:
 
         assert set(result.keys()) == EXPECTED_KEYS
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_emotion_scores_are_floats(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
 
@@ -105,7 +105,7 @@ class TestEmotionDetectorReturnFormat:
         for key in ("anger", "disgust", "fear", "joy", "sadness"):
             assert isinstance(result[key], float)
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_emotion_scores_match_api_response(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
 
@@ -117,7 +117,7 @@ class TestEmotionDetectorReturnFormat:
         assert result["joy"] == 0.91
         assert result["sadness"] == 0.03
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_dominant_emotion_is_string(self, mock_post):
         mock_post.return_value = _mock_response(SAMPLE_API_RESPONSE)
 
@@ -129,7 +129,7 @@ class TestEmotionDetectorReturnFormat:
 class TestDominantEmotion:
     """Tests verifying the dominant emotion logic."""
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_dominant_is_joy(self, mock_post):
         body = {"emotionPredictions": [{"emotion": {
             "anger": 0.01, "disgust": 0.01, "fear": 0.01, "joy": 0.95, "sadness": 0.02
@@ -139,7 +139,7 @@ class TestDominantEmotion:
         result = emotion_detector("I am so happy")
         assert result["dominant_emotion"] == "joy"
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_dominant_is_anger(self, mock_post):
         body = {"emotionPredictions": [{"emotion": {
             "anger": 0.88, "disgust": 0.05, "fear": 0.02, "joy": 0.01, "sadness": 0.04
@@ -149,7 +149,7 @@ class TestDominantEmotion:
         result = emotion_detector("I am furious")
         assert result["dominant_emotion"] == "anger"
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_dominant_is_sadness(self, mock_post):
         body = {"emotionPredictions": [{"emotion": {
             "anger": 0.02, "disgust": 0.01, "fear": 0.03, "joy": 0.01, "sadness": 0.93
@@ -159,7 +159,7 @@ class TestDominantEmotion:
         result = emotion_detector("I feel so sad")
         assert result["dominant_emotion"] == "sadness"
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_dominant_is_fear(self, mock_post):
         body = {"emotionPredictions": [{"emotion": {
             "anger": 0.05, "disgust": 0.02, "fear": 0.85, "joy": 0.03, "sadness": 0.05
@@ -169,7 +169,7 @@ class TestDominantEmotion:
         result = emotion_detector("I am terrified")
         assert result["dominant_emotion"] == "fear"
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_dominant_is_disgust(self, mock_post):
         body = {"emotionPredictions": [{"emotion": {
             "anger": 0.05, "disgust": 0.80, "fear": 0.05, "joy": 0.05, "sadness": 0.05
@@ -183,14 +183,14 @@ class TestDominantEmotion:
 class TestEmotionDetectorErrors:
     """Tests verifying error handling."""
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_connection_error_raises(self, mock_post):
         mock_post.side_effect = requests.ConnectionError("Connection refused")
 
         with pytest.raises(requests.ConnectionError):
             emotion_detector("test")
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_timeout_error_raises(self, mock_post):
         mock_post.side_effect = requests.Timeout("Request timed out")
 

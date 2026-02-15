@@ -1,6 +1,6 @@
 import logging
 
-from emotion_detection import emotion_detector
+from EmotionDetection import emotion_detector
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
 

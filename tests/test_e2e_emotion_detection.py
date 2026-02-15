@@ -8,7 +8,7 @@ with: pytest -m "not e2e"
 import pytest
 import requests
 
-from emotion_detection import emotion_detector, WATSON_URL
+from EmotionDetection.emotion_detection import emotion_detector, WATSON_URL
 
 EXPECTED_KEYS = {"anger", "disgust", "fear", "joy", "sadness", "dominant_emotion"}
 

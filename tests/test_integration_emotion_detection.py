@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock
 
 import requests
 
-from emotion_detection import emotion_detector, WATSON_URL
+from EmotionDetection.emotion_detection import emotion_detector, WATSON_URL
 
 EXPECTED_KEYS = {"anger", "disgust", "fear", "joy", "sadness", "dominant_emotion"}
 
@@ -32,7 +32,7 @@ def _api_body(anger=0.1, disgust=0.1, fear=0.1, joy=0.5, sadness=0.2):
 class TestEmotionDetectorIntegration:
     """Integration tests verifying full request→parse→extract→return flow."""
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_joy_dominant_response(self, mock_post):
         mock_post.return_value = _make_mock_response(200, _api_body(joy=0.97, anger=0.01))
 
@@ -42,7 +42,7 @@ class TestEmotionDetectorIntegration:
         assert result["joy"] == 0.97
         assert result["anger"] == 0.01
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_anger_dominant_response(self, mock_post):
         mock_post.return_value = _make_mock_response(200, _api_body(anger=0.92, joy=0.01))
 
@@ -51,7 +51,7 @@ class TestEmotionDetectorIntegration:
         assert result["dominant_emotion"] == "anger"
         assert result["anger"] == 0.92
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_sadness_dominant_response(self, mock_post):
         mock_post.return_value = _make_mock_response(200, _api_body(sadness=0.93, joy=0.01))
 
@@ -60,7 +60,7 @@ class TestEmotionDetectorIntegration:
         assert result["dominant_emotion"] == "sadness"
         assert result["sadness"] == 0.93
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_response_contains_all_six_keys(self, mock_post):
         mock_post.return_value = _make_mock_response(200, _api_body())
 
@@ -68,7 +68,7 @@ class TestEmotionDetectorIntegration:
 
         assert set(result.keys()) == EXPECTED_KEYS
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_emotion_scores_are_floats(self, mock_post):
         mock_post.return_value = _make_mock_response(200, _api_body())
 
@@ -77,7 +77,7 @@ class TestEmotionDetectorIntegration:
         for key in ("anger", "disgust", "fear", "joy", "sadness"):
             assert isinstance(result[key], float)
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_long_text_input(self, mock_post):
         long_text = "I am happy. " * 500
         mock_post.return_value = _make_mock_response(200, _api_body(joy=0.95))
@@ -88,7 +88,7 @@ class TestEmotionDetectorIntegration:
         assert call_args[1]["json"]["raw_document"]["text"] == long_text
         assert result["dominant_emotion"] == "joy"
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_special_characters_in_text(self, mock_post):
         text = "I'm happy! 😊 <script>alert('xss')</script> & \"quoted\""
         mock_post.return_value = _make_mock_response(200, _api_body(joy=0.8))
@@ -99,7 +99,7 @@ class TestEmotionDetectorIntegration:
         assert call_args[1]["json"]["raw_document"]["text"] == text
         assert isinstance(result, dict)
 
-    @patch("emotion_detection.requests.post")
+    @patch("EmotionDetection.emotion_detection.requests.post")
     def test_close_scores_picks_highest(self, mock_post):
         mock_post.return_value = _make_mock_response(
             200, _api_body(anger=0.30, disgust=0.31, fear=0.29, joy=0.05, sadness=0.05)
