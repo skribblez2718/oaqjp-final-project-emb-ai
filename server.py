@@ -1,3 +1,5 @@
+"""Flask server for the Emotion Detection application."""
+
 from flask import Flask, render_template, request
 
 from EmotionDetection import emotion_detector
@@ -7,6 +9,7 @@ app = Flask(__name__)
 
 @app.route("/emotionDetector")
 def emotion_detector_route():
+    """Analyze the given text and return the emotion detection results."""
     text_to_analyze = request.args.get("textToAnalyze")
     response = emotion_detector(text_to_analyze)
 
@@ -30,6 +33,7 @@ def emotion_detector_route():
 
 @app.route("/")
 def render_index():
+    """Render the index page."""
     return render_template("index.html")
 
 
