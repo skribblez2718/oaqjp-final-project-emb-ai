@@ -1,8 +1,26 @@
+import logging
+
 import requests
 
+logger = logging.getLogger(__name__)
+
+WATSON_URL = "https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict"
+WATSON_HEADERS = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
+REQUEST_TIMEOUT = 10
+
+
 def emotion_detector(text_to_analyse):
-    url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
-    headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     input_json = {"raw_document": {"text": text_to_analyse}}
-    response = requests.post(url, json=input_json, headers=headers)
+    logger.info("Sending request to Watson NLP API...")
+    try:
+        response = requests.post(
+            WATSON_URL, json=input_json, headers=WATSON_HEADERS, timeout=REQUEST_TIMEOUT
+        )
+        logger.info("Response received: status=%d", response.status_code)
+    except requests.ConnectionError:
+        logger.error("Connection failed — Watson API is unreachable")
+        raise
+    except requests.Timeout:
+        logger.error("Request timed out after %ds", REQUEST_TIMEOUT)
+        raise
     return response.text

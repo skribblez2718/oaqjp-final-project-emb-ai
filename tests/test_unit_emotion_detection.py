@@ -6,10 +6,10 @@ Tests the emotion_detector function in isolation by mocking requests.post.
 import json
 from unittest.mock import patch, MagicMock
 
-from emotion_detection import emotion_detector
+import pytest
+import requests
 
-WATSON_URL = "https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict"
-EXPECTED_HEADERS = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
+from emotion_detection import emotion_detector, WATSON_URL, WATSON_HEADERS, REQUEST_TIMEOUT
 
 
 class TestEmotionDetectorUnit:
@@ -42,7 +42,7 @@ class TestEmotionDetectorUnit:
         emotion_detector("test text")
 
         call_args = mock_post.call_args
-        assert call_args[1]["headers"] == EXPECTED_HEADERS
+        assert call_args[1]["headers"] == WATSON_HEADERS
 
     @patch("emotion_detection.requests.post")
     def test_sends_correct_json_payload(self, mock_post):
@@ -53,6 +53,15 @@ class TestEmotionDetectorUnit:
         call_args = mock_post.call_args
         expected_json = {"raw_document": {"text": "I love this product"}}
         assert call_args[1]["json"] == expected_json
+
+    @patch("emotion_detection.requests.post")
+    def test_sends_timeout(self, mock_post):
+        mock_post.return_value = MagicMock(text="{}")
+
+        emotion_detector("test text")
+
+        call_args = mock_post.call_args
+        assert call_args[1]["timeout"] == REQUEST_TIMEOUT
 
     @patch("emotion_detection.requests.post")
     def test_passes_text_argument_in_payload(self, mock_post):
@@ -90,3 +99,17 @@ class TestEmotionDetectorUnit:
 
         parsed = json.loads(result)
         assert "emotionPredictions" in parsed
+
+    @patch("emotion_detection.requests.post")
+    def test_connection_error_raises(self, mock_post):
+        mock_post.side_effect = requests.ConnectionError("Connection refused")
+
+        with pytest.raises(requests.ConnectionError):
+            emotion_detector("test")
+
+    @patch("emotion_detection.requests.post")
+    def test_timeout_error_raises(self, mock_post):
+        mock_post.side_effect = requests.Timeout("Request timed out")
+
+        with pytest.raises(requests.Timeout):
+            emotion_detector("test")

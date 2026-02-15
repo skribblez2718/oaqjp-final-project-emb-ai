@@ -10,9 +10,7 @@ from unittest.mock import patch, MagicMock
 
 import requests
 
-from emotion_detection import emotion_detector
-
-WATSON_URL = "https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict"
+from emotion_detection import emotion_detector, WATSON_URL
 
 
 def _make_mock_response(status_code: int, json_body: dict) -> MagicMock:

@@ -1,5 +1,13 @@
+import logging
+
+from emotion_detection import emotion_detector
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s: %(message)s")
+
+
 def main():
-    print("Hello from final-project!")
+    result = emotion_detector("I am so happy I am doing this.")
+    print(result)
 
 
 if __name__ == "__main__":
